@@ -1,0 +1,81 @@
+# Keeps this private copy up to date with the original project:
+# https://github.com/ai-job-search-dev/ai-job-search
+#
+# Runs every day (and on demand from the Actions tab). It MERGES upstream
+# changes into main, so your own edits (profile, CV, tracker) are kept.
+# If an upstream change conflicts with your edits, the run fails and opens
+# an issue so you can merge by hand; nothing is overwritten.
+#
+# Token: upstream sometimes changes files under .github/workflows/, and
+# GitHub's built-in token is not allowed to push those. Add a repository
+# secret named SYNC_TOKEN (a fine-grained personal access token for this
+# repo with Contents: Read and write + Workflows: Read and write) so those
+# updates go through too. Without it, the sync still works for everything
+# else.
+
+name: Sync from upstream
+
+on:
+  schedule:
+    - cron: "0 1 * * *" # 01:00 UTC daily (09:00 Manila)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-upstream
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.SYNC_TOKEN || github.token }}
+
+      - name: Merge upstream master into main
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/ai-job-search-dev/ai-job-search.git
+          git fetch upstream master --tags
+
+          if git merge-base --is-ancestor upstream/master HEAD; then
+            echo "Already up to date."
+            exit 0
+          fi
+
+          if git merge --no-edit upstream/master; then
+            git push origin main
+            git push origin --tags || true
+            echo "Synced to $(git rev-parse --short upstream/master)."
+          else
+            git merge --abort
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+            echo "::error::Upstream changes conflict with your edits. Merge manually."
+            exit 1
+          fi
+
+      - name: Open an issue on conflict
+        if: failure() && steps.merge.outputs.conflict == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Upstream sync needs a manual merge"
+          if ! gh issue list --state open --search "$title in:title" --json number -q '.[0].number' | grep -q .; then
+            gh issue create --title "$title" --body "The daily sync could not merge ai-job-search-dev/ai-job-search master automatically because it conflicts with your changes.
+
+          Fix it locally:
+          \`\`\`
+          git remote add upstream https://github.com/ai-job-search-dev/ai-job-search.git
+          git fetch upstream
+          git merge upstream/master
+          # resolve conflicts, then
+          git push
+          \`\`\`"
+          fi
