@@ -12,14 +12,32 @@ The `site:` query templates in this file are the **WebSearch fallback** — for 
 
 ## Search Sites
 
-Primary (your market's job boards - scaffold one with `/add-portal`):
-- **[YOUR_JOB_BOARD]** - your market's largest general job board
-- **linkedin.com/jobs** - LinkedIn job listings (filter: [YOUR_COUNTRY] / [YOUR_CITY]); also covered by `linkedin-search` CLI
-- **[YOUR_INDUSTRY_JOB_BOARD]** - a niche/industry board for your field (optional)
-- **[YOUR_ADDITIONAL_JOB_BOARD]** - another major board for your market (optional)
+Market: **Philippines** (local roles + remote roles open to PH-based candidates). See `.claude/skills/job-application-assistant/10-philippines-market.md` for board notes and scam checks.
 
-Secondary (company career pages via Google):
-- Direct Google searches with `site:` filters for known target companies
+Primary (CLIs - run these first):
+- **linkedin.com/jobs** via `linkedin-search` - run with `-l "Philippines"` (and `-l "[YOUR_CITY], Philippines"` for local roles); for remote roles also run with `--remote remote`
+- **freehire.me** via `freehire-search` - tech roles; run with `--country PH`, and for remote with `--remote remote --region apac,global,none`
+
+Primary (WebSearch `site:` fallback - no CLI yet; scaffold one with `/add-portal` on your own machine if you want structured results):
+- **ph.jobstreet.com** - largest general Philippine job board
+- **kalibrr.com** - tech, startups, fresh grads
+- **ph.indeed.com** - broad local coverage
+- **onlinejobs.ph** - remote work for foreign (mostly US/AU) clients
+
+Secondary:
+- **bossjob.ph**, **philjobnet.gov.ph** (DOLE) - optional local boards
+- Direct Google searches with `site:` filters for known target companies' career pages
+
+## Portal CLI location flags (Philippines)
+
+```
+bun run .agents/skills/linkedin-search/cli/src/cli.ts search -q "[YOUR_PRIMARY_JOB_TITLE_1]" -l "Philippines" --jobage 14 --format json
+bun run .agents/skills/linkedin-search/cli/src/cli.ts search -q "[YOUR_PRIMARY_JOB_TITLE_1]" -l "Philippines" --remote remote --jobage 14 --format json
+bun run .agents/skills/freehire-search/cli/src/cli.ts search -q "[YOUR_PRIMARY_JOB_TITLE_1]" --country PH --jobage 14 --format json
+bun run .agents/skills/freehire-search/cli/src/cli.ts search -q "[YOUR_PRIMARY_JOB_TITLE_1]" --remote remote --region apac,global,none --jobage 14 --format json
+```
+
+For remote results, keep a posting only if it says it hires in the Philippines, APAC, or worldwide. Drop "Remote (US only)", "must be authorized to work in the US/EU" and similar.
 
 ## Query Categories
 
@@ -32,10 +50,14 @@ Queries are grouped by priority. Write **each category in every language from yo
 These match your strongest and most desired career direction.
 
 ```
-site:[YOUR_JOB_BOARD] "[YOUR_PRIMARY_JOB_TITLE_1]" [YOUR_CITY]
-site:[YOUR_JOB_BOARD] "[YOUR_PRIMARY_JOB_TITLE_2]" [YOUR_CITY]
-site:[YOUR_JOB_BOARD] "[YOUR_KEY_SKILL]" [YOUR_CITY]
-site:linkedin.com/jobs "[YOUR_PRIMARY_JOB_TITLE_1]" [YOUR_COUNTRY]
+site:ph.jobstreet.com "[YOUR_PRIMARY_JOB_TITLE_1]" [YOUR_CITY]
+site:ph.jobstreet.com "[YOUR_PRIMARY_JOB_TITLE_2]" [YOUR_CITY]
+site:ph.jobstreet.com "[YOUR_KEY_SKILL]" [YOUR_CITY]
+site:linkedin.com/jobs "[YOUR_PRIMARY_JOB_TITLE_1]" Philippines
+site:kalibrr.com "[YOUR_PRIMARY_JOB_TITLE_1]"
+site:ph.indeed.com "[YOUR_PRIMARY_JOB_TITLE_1]" [YOUR_CITY]
+site:onlinejobs.ph "[YOUR_PRIMARY_JOB_TITLE_1]"
+site:ph.jobstreet.com "[YOUR_PRIMARY_JOB_TITLE_1]" "work from home" OR remote
 ```
 
 ### Priority 2: [YOUR_DOMAIN_EXPERTISE]
@@ -43,9 +65,9 @@ site:linkedin.com/jobs "[YOUR_PRIMARY_JOB_TITLE_1]" [YOUR_COUNTRY]
 These match your domain expertise.
 
 ```
-site:[YOUR_JOB_BOARD] [YOUR_DOMAIN_KEYWORD_1] [YOUR_CITY] OR [YOUR_REGION]
-site:[YOUR_JOB_BOARD] [YOUR_DOMAIN_KEYWORD_2] [YOUR_COUNTRY]
-site:linkedin.com/jobs [YOUR_DOMAIN_KEYWORD_1] [YOUR_CITY] [YOUR_COUNTRY]
+site:ph.jobstreet.com [YOUR_DOMAIN_KEYWORD_1] [YOUR_CITY] OR [YOUR_REGION]
+site:ph.jobstreet.com [YOUR_DOMAIN_KEYWORD_2] Philippines
+site:linkedin.com/jobs [YOUR_DOMAIN_KEYWORD_1] [YOUR_CITY] Philippines
 ```
 
 ### Priority 3: [YOUR_ADJACENT_ROLE_TYPE]
@@ -53,8 +75,8 @@ site:linkedin.com/jobs [YOUR_DOMAIN_KEYWORD_1] [YOUR_CITY] [YOUR_COUNTRY]
 Adjacent roles you could pivot into.
 
 ```
-site:[YOUR_JOB_BOARD] "[YOUR_ADJACENT_TITLE_1]" [YOUR_KEY_SKILL] [YOUR_CITY]
-site:[YOUR_JOB_BOARD] "[YOUR_ADJACENT_TITLE_2]" [YOUR_KEY_SKILL] [YOUR_CITY]
+site:ph.jobstreet.com "[YOUR_ADJACENT_TITLE_1]" [YOUR_KEY_SKILL] [YOUR_CITY]
+site:ph.jobstreet.com "[YOUR_ADJACENT_TITLE_2]" [YOUR_KEY_SKILL] [YOUR_CITY]
 ```
 
 ### Priority 4: Broader Technical / Consulting
@@ -62,19 +84,19 @@ site:[YOUR_JOB_BOARD] "[YOUR_ADJACENT_TITLE_2]" [YOUR_KEY_SKILL] [YOUR_CITY]
 Wider net for general technical roles.
 
 ```
-site:[YOUR_JOB_BOARD] [YOUR_KEY_SKILL] developer [YOUR_CITY]
+site:ph.jobstreet.com [YOUR_KEY_SKILL] developer [YOUR_CITY]
 site:linkedin.com/jobs "[YOUR_KEY_SKILL] developer" [YOUR_CITY]
-site:[YOUR_JOB_BOARD] "technical consultant" [YOUR_DOMAIN] [YOUR_CITY]
+site:ph.jobstreet.com "technical consultant" [YOUR_DOMAIN] [YOUR_CITY]
 ```
 
 ## Location Filter
 
-When evaluating results, verify the job location is within reasonable commute distance from your home. Define acceptable areas:
-- [YOUR_CITY] and surrounding areas
-- [ACCEPTABLE_AREA_1]
-- [ACCEPTABLE_AREA_2]
-- [BORDERLINE_AREA] (borderline - ~X min by transit)
-- [TOO_FAR_AREA] (too far)
+When evaluating results, check location and work arrangement together. In Metro Manila judge commute by realistic rush-hour travel time, not distance (see `10-philippines-market.md`).
+- **Remote:** accept if the posting hires in the Philippines, APAC or worldwide; reject "US only" / "EU only" / work-authorization-restricted remote
+- **Ideal (onsite/hybrid):** [YOUR_CITY] and nearby cities (e.g. Makati, BGC/Taguig, Ortigas, Quezon City, Alabang - keep only those within your commute)
+- **Acceptable:** [ACCEPTABLE_AREA_1], [ACCEPTABLE_AREA_2] (hybrid only, or ~X min commute)
+- **Borderline:** [BORDERLINE_AREA] (~X min each way)
+- **Too far / relocation:** [TOO_FAR_AREA] (e.g. Cebu, Clark, Davao unless remote or you'd relocate); overseas onsite roles (verify the agency with DMW first)
 
 ## Language Filter
 

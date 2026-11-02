@@ -17,11 +17,13 @@ This repo is a job application workspace. Claude acts as a career advisor and ap
 
 ### Identity
 - **Name:** [YOUR_NAME]
-- **Location:** [YOUR_CITY], [YOUR_COUNTRY] ([YOUR_COMMUTE_CONSTRAINTS])
+- **Location:** [YOUR_CITY], Philippines ([YOUR_COMMUTE_CONSTRAINTS])
+- **Market:** Philippines - apply `.claude/skills/job-application-assistant/10-philippines-market.md` (local vs foreign-remote roles, scam checks, PH CV norms, PHP gross monthly salary) to every evaluation, CV, cover letter and interview prep
 - **Languages:**
   | Language | Level |
   |----------|-------|
-  | [LANGUAGE] | [LEVEL] |
+  | English | [LEVEL] |
+  | Filipino | [LEVEL] |
   <!-- Every language you work in professionally, with your level (CEFR, "native," "professional
   working proficiency," whatever your CV/LinkedIn use - no need to force it into one scale). An
   undeclared language is a hard deal-breaker if a posting requires it; a declared language at a
